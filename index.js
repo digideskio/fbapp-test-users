@@ -78,6 +78,14 @@ function deleteUser(userId) {
     return Graph.delAsync(userId);
 }
 
+function updateUser(userId, name, password) {
+    var fields = {};
+    if(name) fields.name = name;
+    if(password) fields.password = password;
+
+    return Graph.postAsync(userId, fields);
+}
+
 module.exports = {
     getList: function(appId, appSecret) {
         return auth(appId, appSecret)
@@ -90,5 +98,9 @@ module.exports = {
     deleteUser: function(appId, appSecret, userId) {
         return auth(appId, appSecret)
                 .then(deleteUser.bind(null, userId));
+    },
+    updateUser: function(appId, appSecret, userId, name, password) {
+        return auth(appId, appSecret)
+                .then(updateUser.bind(null, userId, name, password));
     }
 }
