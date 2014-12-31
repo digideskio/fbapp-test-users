@@ -74,6 +74,10 @@ function createUser(appId, fields) {
     */
 }
 
+function deleteUser(userId) {
+    return Graph.delAsync(userId);
+}
+
 module.exports = {
     getList: function(appId, appSecret) {
         return auth(appId, appSecret)
@@ -82,5 +86,9 @@ module.exports = {
     createUser: function(appId, appSecret, fields) {
         return auth(appId, appSecret)
                 .then(createUser.bind(null, appId, fields));
+    },
+    deleteUser: function(appId, appSecret, userId) {
+        return auth(appId, appSecret)
+                .then(deleteUser.bind(null, userId));
     }
 }
