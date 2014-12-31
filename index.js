@@ -13,9 +13,6 @@ function auth(appId, appSecret) {
         client_id: appId,
         client_secret: appSecret,
         grant_type: 'client_credentials'
-    })
-    .catch(function(e) {
-        throw new Error('Cannot retrieve app access token: ' + e);
     });
 }
 
@@ -60,18 +57,30 @@ function getTestUsers(appId) {
         });
 
         return testUsers;
-    })
-    .catch(function(e) {
-        throw new Error('Cannot get test users: ' + e);
     });
 }
 
+// see fields here: https://developers.facebook.com/docs/graph-api/reference/v2.2/app/accounts/test-users#pubfields
+function createUser(appId, fields) {
+    return Graph.postAsync(appId + '/accounts/test-users', fields);
+    /*
+    Example of response:
+    {
+        id: '012345',
+        email: 'xxx',
+        login_url: 'https://developers.facebook.com/checkpoint/test-user-login/012345/',
+        password: '1876562816'
+    }
+    */
+}
 
 module.exports = {
     getList: function(appId, appSecret) {
         return auth(appId, appSecret)
-               .then(function() {
-                    return getTestUsers(appId);
-               });
+                .then(getTestUsers.bind(null, appId));
+    },
+    createUser: function(appId, appSecret, fields) {
+        return auth(appId, appSecret)
+                .then(createUser.bind(null, appId, fields));
     }
 }
