@@ -7,8 +7,16 @@ Promise.promisifyAll(Graph);
 // set the latest version for the Facebook Graph API
 Graph.setVersion('2.2');
 
+var appId = '';
+var appSecret = '';
+var appAccessToken = null;
+
 // auth to Facebook to get an App Access Token
-function auth(appId, appSecret) {
+function auth() {
+    if(appAccessToken) {
+        return Promise.resolve();
+    }
+
     return Graph.authorizeAsync({
         client_id: appId,
         client_secret: appSecret,
@@ -17,7 +25,7 @@ function auth(appId, appSecret) {
 }
 
 // get the test users for a specific App id
-function getTestUsers(appId) {
+function getTestUsers() {
     return Graph.batchAsync([
         {
             method: 'GET',
@@ -61,7 +69,7 @@ function getTestUsers(appId) {
 }
 
 // see fields here: https://developers.facebook.com/docs/graph-api/reference/v2.2/app/accounts/test-users#pubfields
-function createUser(appId, fields) {
+function createUser(fields) {
     return Graph.postAsync(appId + '/accounts/test-users', fields);
     /*
     Example of response:
@@ -87,20 +95,29 @@ function updateUser(userId, name, password) {
 }
 
 module.exports = {
-    getList: function(appId, appSecret) {
-        return auth(appId, appSecret)
-                .then(getTestUsers.bind(null, appId));
+    setAppId: function(id) {
+        appId = id;
+        appAccessToken = null;
     },
-    createUser: function(appId, appSecret, fields) {
-        return auth(appId, appSecret)
-                .then(createUser.bind(null, appId, fields));
+    setAppSecret: function(secret) {
+        appSecret = secret;
+        Graph.setAppSecret(secret);
+        appAccessToken = null;
     },
-    deleteUser: function(appId, appSecret, userId) {
-        return auth(appId, appSecret)
-                .then(deleteUser.bind(null, userId));
+    setAppAccessToken: function(token) {
+        appAccessToken = token;
     },
-    updateUser: function(appId, appSecret, userId, name, password) {
-        return auth(appId, appSecret)
-                .then(updateUser.bind(null, userId, name, password));
+
+    getList: function() {
+        return auth().then(getTestUsers);
+    },
+    createUser: function(fields) {
+        return auth().then(createUser.bind(null, fields));
+    },
+    deleteUser: function(userId) {
+        return auth().then(deleteUser.bind(null, userId));
+    },
+    updateUser: function(userId, name, password) {
+        return auth().then(updateUser.bind(null, userId, name, password));
     }
 }
