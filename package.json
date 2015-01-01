@@ -1,0 +1,38 @@
+{
+  "name": "fbapp-test-users",
+  "version": "0.0.1",
+  "description": "List, create, update and delete Facebook test users for an application",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/tleunen/fbapp-test-users.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tleunen/fbapp-test-users/issues"
+  },
+  "homepage": "https://github.com/tleunen/fbapp-test-users",
+  "keywords": [
+    "facebook",
+    "testing",
+    "test",
+    "users",
+    "graph",
+    "api"
+  ],
+  "author": {
+    "name": "Tommy Leunen",
+    "email": "tommy.leunen@gmail.com",
+    "url": "http://tommyleunen.com/"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^2.5.3",
+    "fbgraph": "^0.3.0"
+  },
+  "devDependencies": {
+    "mocha": "^2.1.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  }
+}
