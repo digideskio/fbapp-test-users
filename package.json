@@ -1,6 +1,6 @@
 {
   "name": "fbapp-test-users",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "List, create, update and delete Facebook test users for an application",
   "main": "index.js",
   "repository": {
