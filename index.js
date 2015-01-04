@@ -25,17 +25,19 @@ function auth() {
 }
 
 // get the test users for a specific App id
-function getTestUsers() {
+function getTestUsers(limit) {
+    var limit = limit || 50;
+
     return Graph.batchAsync([
         {
             method: 'GET',
             name: 'get-users',
-            relative_url: appId + '/accounts/test-users?limit=500',
+            relative_url: appId + '/accounts/test-users?limit=' + limit,
             omit_response_on_success: false
         },
         {
             method: 'GET',
-            relative_url: '?ids={result=get-users:$.data.*.id}'
+            relative_url: '?ids={result=get-users:$.data.*.id}&fields=name'
         }
     ]).then(function(res) {
         if (res.length != 2) throw new Error('Cannot get test users: ' + err);
@@ -58,7 +60,6 @@ function getTestUsers() {
             var profile = getProfileResponse[user.id];
             if(profile) {
                 user.name = profile['name'];
-                user.link = profile['link'];
             }
 
             testUsers.push(user);
@@ -108,8 +109,8 @@ module.exports = {
         appAccessToken = token;
     },
 
-    getList: function() {
-        return auth().then(getTestUsers);
+    getList: function(limit) {
+        return auth().then(getTestUsers.bind(null, limit));
     },
     createUser: function(fields) {
         return auth().then(createUser.bind(null, fields));

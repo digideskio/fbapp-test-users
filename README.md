@@ -25,12 +25,12 @@ FbTestUsers.setAppSecret('YYYY');
 ```
 
 <a name="getList"></a>
-### getList()
+### getList(limit)
 
 Retrieve the list of test users.
 
 ```js
-FbTestUsers.getList()
+FbTestUsers.getList(50)
 .then(function(list) {
     // Example:
     /*
