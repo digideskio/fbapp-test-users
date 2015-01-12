@@ -10,6 +10,7 @@ Graph.setVersion('2.2');
 var appId = '';
 var appSecret = '';
 var appAccessToken = null;
+var FBgetTestUsersLimit = 50; // FB uses a limit of 50 by default so we'll use the same limit when making our requests
 
 // auth to Facebook to get an App Access Token
 function auth() {
@@ -26,13 +27,26 @@ function auth() {
 
 // get the test users for a specific App id
 function getTestUsers(limit) {
-    var limit = limit || 50;
+    // 0 means no limit
+    var limit = typeof limit === 'undefined' ? 0 : limit || FBgetTestUsersLimit;
+
+    var testUsers = [];
+
+    return _getTestUsers(testUsers, limit).then(function() {
+        return limit && testUsers.length > limit ? testUsers.slice(0, limit) : testUsers;
+    });
+}
+
+function _getTestUsers(testUsers, limit, next) {
+    var afterQuery = next ? '&after=' + next : '';
+    var internalLimit = (!limit || limit>FBgetTestUsersLimit) ? FBgetTestUsersLimit : limit;
+    var limitQuery = '?limit=' + internalLimit;
 
     return Graph.batchAsync([
         {
             method: 'GET',
             name: 'get-users',
-            relative_url: appId + '/accounts/test-users?limit=' + limit,
+            relative_url: appId + '/accounts/test-users' + limitQuery + afterQuery,
             omit_response_on_success: false
         },
         {
@@ -43,17 +57,16 @@ function getTestUsers(limit) {
         if (res.length != 2) throw new Error('Cannot get test users: ' + err);
         // res should be an array of 2 elements (2 request responses)
 
-        var getUserResponse = JSON.parse(res[0]['body'])['data'];
+        var getUserResponse = JSON.parse(res[0]['body']);
         var getProfileResponse = JSON.parse(res[1]['body']);
+        var nbUsersReceived = getUserResponse['data'].length;
 
-        var testUsers = [];
-        getUserResponse.forEach(function(testUser) {
+        getUserResponse['data'].forEach(function(testUser) {
             var user = {
                 id: testUser['id'],
                 loginUrl: testUser['login_url'],
                 accessToken: testUser['access_token'],
-                name: '[err] profile not found',
-                link: ''
+                name: '[err] profile not found'
             };
 
             // push the element from the profile inside our user
@@ -65,7 +78,11 @@ function getTestUsers(limit) {
             testUsers.push(user);
         });
 
-        return testUsers;
+        // loop to get more users if needed and if there are more users to get
+        var hasPaging = getUserResponse['paging'] && getUserResponse['paging']['cursors'] && getUserResponse['paging']['cursors']['after'];
+        if( (!limit || testUsers.length < limit) && nbUsersReceived == internalLimit && hasPaging) {
+            return _getTestUsers(testUsers, limit, getUserResponse['paging']['cursors']['after']);
+        }
     });
 }
 

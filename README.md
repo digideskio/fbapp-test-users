@@ -28,6 +28,7 @@ FbTestUsers.setAppSecret('YYYY');
 ### getList(limit)
 
 Retrieve the list of test users.
+By default, if no limit is given, the function gets all the test users.
 
 ```js
 FbTestUsers.getList(50)
